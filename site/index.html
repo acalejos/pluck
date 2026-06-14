@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>pluck — turn any website into a type-safe, verified API</title>
+<meta name="description" content="pluck turns any website into a type-safe, source-verified API. You bring a Zod schema; pluck fetches, extracts, and traces every field back to the page. Crawl, verify, and cache are yours — the model call is pluggable." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="pluck — turn any website into a type-safe, verified API" />
+<meta property="og:description" content="Hand pluck a URL and a schema. Get back a typed object where every field is traced to the page it came from." />
+<!-- og:image: drop pluck-lockup.png into assets/ (use an absolute URL on deploy) -->
+<meta property="og:image" content="assets/pluck-lockup.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500;1,9..144,900&family=Hanken+Grotesk:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 112'%3E%3Cpath fill='%231B1613' fill-rule='evenodd' d='M44 0 L82 0 C90 2 93 16 90 32 C87 48 79 56 71 62 C65 67 62 73 61 80 C60 87 56 92 52 90 C49.5 88 48.5 83 48 78 C46 84 43 91 39 92 C35 93 31 91 32 86 C33 79 36 73 32 67 C27 59 24 48 26 36 C28 22 35 8 44 0 Z M55 28 C64 30 70 42 66 54 C63 64 57 71 53 76 C50 70 48 61 48 52 C48 42 49 31 55 28 Z M39 38 C35 49 35 62 38 73 C40 67 42 57 42 49 C42 45 41 41 39 38 Z'/%3E%3Ccircle cx='46' cy='102' r='6' fill='%23D8442B'/%3E%3C/svg%3E" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><svg class="mark" viewBox="0 0 100 112" width="20" height="22" aria-hidden="true"><path class="hand" fill-rule="evenodd" d="M44 0 L82 0 C90 2 93 16 90 32 C87 48 79 56 71 62 C65 67 62 73 61 80 C60 87 56 92 52 90 C49.5 88 48.5 83 48 78 C46 84 43 91 39 92 C35 93 31 91 32 86 C33 79 36 73 32 67 C27 59 24 48 26 36 C28 22 35 8 44 0 Z M55 28 C64 30 70 42 66 54 C63 64 57 71 53 76 C50 70 48 61 48 52 C48 42 49 31 55 28 Z M39 38 C35 49 35 62 38 73 C40 67 42 57 42 49 C42 45 41 41 39 38 Z"/><circle class="seed" cx="46" cy="102" r="6"/></svg>pluck<span class="ver">v0.1.0</span></a>
+    <nav class="nav">
+      <a href="docs.html">Docs</a>
+      <a class="hide-sm" href="docs.html#concepts">Concepts</a>
+      <a class="hide-sm" href="https://github.com/acalejos/pluck">GitHub</a>
+      <a class="cta" href="docs.html#install">Get started</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <svg class="hero-mark reveal d1" viewBox="0 0 100 112" aria-hidden="true"><path class="hand" fill-rule="evenodd" d="M44 0 L82 0 C90 2 93 16 90 32 C87 48 79 56 71 62 C65 67 62 73 61 80 C60 87 56 92 52 90 C49.5 88 48.5 83 48 78 C46 84 43 91 39 92 C35 93 31 91 32 86 C33 79 36 73 32 67 C27 59 24 48 26 36 C28 22 35 8 44 0 Z M55 28 C64 30 70 42 66 54 C63 64 57 71 53 76 C50 70 48 61 48 52 C48 42 49 31 55 28 Z M39 38 C35 49 35 62 38 73 C40 67 42 57 42 49 C42 45 41 41 39 38 Z" /><circle class="seed" cx="46" cy="102" r="6" /></svg>
+      <span class="eyebrow reveal d2">The web, as a typed API</span>
+      <h1 class="reveal d2">Pluck the data.<br /><em>Leave the page.</em></h1>
+      <p class="lede reveal d3">Hand pluck a URL and a schema. Get back a typed object where every field has been traced to the page it came from. No selectors. No scraping glue. No silent <code class="inline">any</code>.</p>
+      <div class="actions reveal d4">
+        <a class="btn btn-primary" href="docs.html#install">Read the docs →</a>
+        <a class="btn btn-ghost" href="#how">How it works</a>
+      </div>
+    </div>
+
+    <div class="hero-code code-wrap reveal d3">
+      <div class="code">
+        <div class="code-bar">
+          <span class="fname">recipe.ts</span>
+          <span class="dots"><i></i><i></i><i></i></span>
+        </div>
+<pre><span class="kw">import</span> { createPluck } <span class="kw">from</span> <span class="st">'pluck'</span>
+<span class="kw">import</span> { z } <span class="kw">from</span> <span class="st">'zod'</span>
+
+<span class="kw">const</span> Recipe = z.<span class="fn">object</span>({
+  title:       z.<span class="fn">string</span>(),
+  ingredients: z.<span class="fn">array</span>(z.<span class="fn">string</span>()),
+  minutes:     z.<span class="fn">number</span>(),
+})
+
+<span class="kw">const</span> client = <span class="fn">createPluck</span>({ router })
+
+<span class="kw">const</span> res = <span class="kw">await</span> client.<span class="fn">pluck</span>(url, Recipe)
+<span class="cm">//        ^? ExtractResult&lt;Recipe&gt;</span>
+
+<span class="kw">if</span> (res.ok) {
+  res.data.minutes   <span class="cm">// number — verified ✓</span>
+  res.<span class="fn">source</span>          <span class="cm">// 'jsonld' | 'llm'</span>
+}</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PIPELINE ============ -->
+<section class="pipeline" id="how">
+  <div class="wrap">
+    <div class="pipeline-head">
+      <h2 style="font-size:clamp(1.6rem,3vw,2.2rem)">One call. Six stages.</h2>
+      <span class="sec-num">FIG. 01 — THE PIPELINE</span>
+    </div>
+    <div class="pipe-row">
+      <div class="pipe-step"><div class="n">01</div><div class="t">Fetch</div><div class="d">Plain HTTP, or your self-hosted Firecrawl for JS-heavy pages.</div></div>
+      <div class="pipe-step fast"><div class="n">02 · FAST PATH</div><div class="t">JSON-LD</div><div class="d">Reads schema.org &amp; embedded data. Zero LLM, zero cost.</div></div>
+      <div class="pipe-step"><div class="n">03</div><div class="t">Reduce</div><div class="d">Strips the chrome. Clean markdown, not raw HTML.</div></div>
+      <div class="pipe-step"><div class="n">04</div><div class="t">Extract</div><div class="d">A router fills your schema. pluck never names the model.</div></div>
+      <div class="pipe-step"><div class="n">05</div><div class="t">Verify</div><div class="d">Traces every field back to the source. Sets a ratio.</div></div>
+      <div class="pipe-step"><div class="n">06</div><div class="t">Cache</div><div class="d">Keyed on content + schema. Unchanged page, no re-work.</div></div>
+    </div>
+    <p class="pipe-note">When the page already publishes structured data, pluck takes the <b>fast path</b> and skips the model entirely — most recipe, product, and article pages do.</p>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="features wrap">
+
+  <div class="feature">
+    <div class="head">
+      <span class="sec-num">§ 01</span>
+      <h2>Type-safe by contract, not by hope.</h2>
+    </div>
+    <div class="body">
+      <p>The schema is <strong>yours</strong>, and it's decoupled from the page's markup. A site can re-skin its entire layout — your <code class="inline">Recipe</code> type doesn't move, because pluck reads meaning, not CSS selectors.</p>
+      <p>Every call resolves to a discriminated <code class="inline">ExtractResult&lt;T&gt;</code>. Success is typed data; failure is a reason and an optional partial. There is no path where you get an untyped blob and a prayer.</p>
+      <span class="tag">ExtractResult&lt;T&gt; · never any</span>
+    </div>
+  </div>
+
+  <div class="feature">
+    <div class="head">
+      <span class="sec-num">§ 02</span>
+      <h2>Verified, not guessed.</h2>
+    </div>
+    <div class="body">
+      <p>An LLM will happily invent a price. pluck won't ship one. Every extracted field is traced back to a span in the page's own text and scored — the result carries a <code class="inline">verifiedRatio</code>.</p>
+      <p>Fall below the threshold and the call returns <code class="inline">{ ok: false }</code> with the partial attached, rather than handing you a confident fabrication. <strong>Type-safe is not the same as correct</strong> — pluck treats them as two separate jobs.</p>
+      <span class="tag">provenance per field</span>
+    </div>
+  </div>
+
+  <div class="feature">
+    <div class="head">
+      <span class="sec-num">§ 03</span>
+      <h2>Cheap on purpose.</h2>
+    </div>
+    <div class="body">
+      <p>The model call is the expensive part, so pluck avoids it whenever it can. Pages that already publish <code class="inline">schema.org</code> JSON-LD take the fast path — no tokens spent, no hallucination surface.</p>
+      <p>What does hit the model is cached on a <strong>content + schema hash</strong>. Re-run against an unchanged page and you pay nothing the second time. That economy is the whole reason a shared service beats a hand-rolled script.</p>
+      <span class="tag">json-ld first · hashed cache</span>
+    </div>
+  </div>
+
+  <div class="feature">
+    <div class="head">
+      <span class="sec-num">§ 04</span>
+      <h2>Swap any part. Keep the pipeline.</h2>
+    </div>
+    <div class="body">
+      <p>Fetcher, Router, and Cache are plain interfaces. Start on plain <code class="inline">fetch</code>; graduate to <code class="inline">firecrawlFetcher</code> against your own crawl stack. Mock the model with <code class="inline">callbackRouter</code>; wire real policy with <code class="inline">swooshRouter</code>.</p>
+      <p>The in-memory cache implements the same <code class="inline">Cache</code> interface a Redis or Postgres store would — so the library you run locally is the service you run hosted, untouched.</p>
+      <span class="tag">Fetcher · Router · Cache</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- ============ COMPOSE BAND ============ -->
+<section class="band">
+  <div class="wrap split">
+    <p class="seam">pluck owns the crawl, the verify, and the cache. <b>swoosh</b> owns which model, under what policy.</p>
+    <div class="who">
+      <span>pluck</span> → fetch · json-ld · reduce · verify · cache<br />
+      <span>swoosh</span> → model selection · budgets · fallback<br /><br />
+      A clean seam. pluck asks for "a model that does structured output";
+      swoosh decides which one and what it costs. Neither knows the other's job.
+    </div>
+  </div>
+</section>
+
+<!-- ============ START ============ -->
+<section class="start">
+  <div class="wrap start-grid">
+    <div>
+      <span class="eyebrow">Get started</span>
+      <h2>Three lines<br />to typed data.</h2>
+      <p style="color:var(--ink-soft);margin-top:1rem;max-width:30ch">Install it, define a schema, call <code class="inline">pluck</code>. The JSON-LD path runs with no model at all.</p>
+      <a class="btn btn-primary" href="docs.html#install" style="margin-top:1.5rem">Full documentation →</a>
+    </div>
+    <div class="code">
+      <div class="code-bar">
+        <span class="fname">terminal</span>
+        <button class="copy-btn" data-copy="npm install pluck zod">Copy</button>
+      </div>
+<pre><span class="cm"># install</span>
+npm install pluck zod
+
+<span class="cm"># optional: policy-driven model routing</span>
+npm install swoosh-router</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="fnote">
+      pluck — turn any website into a type-safe, verified API.<br />
+      A library, not a service. Bring your own model, crawler, and cache.
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0.9rem;align-items:flex-end">
+      <span class="status-pill"><b>●</b> &nbsp;v0.1.0 · pre-release</span>
+      <div class="flinks">
+        <a href="docs.html">Docs</a>
+        <a href="docs.html#api">API</a>
+        <a href="https://github.com/acalejos/pluck">GitHub</a>
+        <a href="https://www.npmjs.com">npm</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

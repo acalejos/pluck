@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>pluck — documentation</title>
+<meta name="description" content="Documentation for pluck: install, quickstart, concepts, the full API reference, fetchers, routers, and configuration." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Hanken+Grotesk:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 112'%3E%3Cpath fill='%231B1613' fill-rule='evenodd' d='M44 0 L82 0 C90 2 93 16 90 32 C87 48 79 56 71 62 C65 67 62 73 61 80 C60 87 56 92 52 90 C49.5 88 48.5 83 48 78 C46 84 43 91 39 92 C35 93 31 91 32 86 C33 79 36 73 32 67 C27 59 24 48 26 36 C28 22 35 8 44 0 Z M55 28 C64 30 70 42 66 54 C63 64 57 71 53 76 C50 70 48 61 48 52 C48 42 49 31 55 28 Z M39 38 C35 49 35 62 38 73 C40 67 42 57 42 49 C42 45 41 41 39 38 Z'/%3E%3Ccircle cx='46' cy='102' r='6' fill='%23D8442B'/%3E%3C/svg%3E" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><svg class="mark" viewBox="0 0 100 112" width="20" height="22" aria-hidden="true"><path class="hand" fill-rule="evenodd" d="M44 0 L82 0 C90 2 93 16 90 32 C87 48 79 56 71 62 C65 67 62 73 61 80 C60 87 56 92 52 90 C49.5 88 48.5 83 48 78 C46 84 43 91 39 92 C35 93 31 91 32 86 C33 79 36 73 32 67 C27 59 24 48 26 36 C28 22 35 8 44 0 Z M55 28 C64 30 70 42 66 54 C63 64 57 71 53 76 C50 70 48 61 48 52 C48 42 49 31 55 28 Z M39 38 C35 49 35 62 38 73 C40 67 42 57 42 49 C42 45 41 41 39 38 Z"/><circle class="seed" cx="46" cy="102" r="6"/></svg>pluck<span class="ver">v0.1.0</span></a>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a class="hide-sm" href="#api">API</a>
+      <a class="hide-sm" href="https://github.com/acalejos/pluck">GitHub</a>
+      <a class="cta" href="#install">Install</a>
+    </nav>
+  </div>
+</header>
+
+<div class="docs">
+  <!-- ===== sidebar ===== -->
+  <aside class="side">
+    <nav id="toc">
+      <div class="grp">Start</div>
+      <a href="#install">Install</a>
+      <a href="#quickstart">Quickstart</a>
+      <div class="grp">Concepts</div>
+      <a href="#concepts">The pipeline</a>
+      <a href="#result">ExtractResult</a>
+      <a href="#verify">Verification</a>
+      <a href="#fastpath">JSON-LD fast path</a>
+      <a href="#caching">Caching</a>
+      <div class="grp">API</div>
+      <a href="#api">createPluck</a>
+      <a href="#pluck">pluck &amp; define</a>
+      <a href="#default">Default client</a>
+      <a href="#config">PluckConfig</a>
+      <div class="grp">Seams</div>
+      <a href="#fetchers">Fetchers</a>
+      <a href="#routers">Routers</a>
+      <a href="#cache">Cache</a>
+      <div class="grp">Reference</div>
+      <a href="#types">Types</a>
+      <a href="#status">Status</a>
+    </nav>
+  </aside>
+
+  <!-- ===== main ===== -->
+  <main class="doc-main">
+    <span class="eyebrow">Documentation</span>
+    <h1>pluck</h1>
+    <p class="doc-lede">Turn any website into a type-safe, source-verified API. You bring a Zod schema; pluck fetches the page, fills the schema, traces every field back to the source, and caches the result. pluck owns the crawl, verify, and cache — the model call is yours to plug in.</p>
+
+    <!-- INSTALL -->
+    <h2 id="install">Install</h2>
+    <p>pluck is an ESM, TypeScript-first package. It needs <code class="inline">zod</code> as a peer for schemas.</p>
+    <div class="code"><div class="code-bar"><span class="fname">terminal</span><button class="copy-btn" data-copy="npm install pluck zod">Copy</button></div><pre>npm install pluck zod</pre></div>
+    <p>Two optional add-ons, only if you want them:</p>
+    <div class="code"><div class="code-bar"><span class="fname">terminal</span><button class="copy-btn" data-copy="npm install swoosh-router">Copy</button></div><pre><span class="cm"># policy-driven model routing (the swooshRouter adapter)</span>
+npm install swoosh-router</pre></div>
+    <div class="callout"><span class="lbl">Pre-release</span>pluck is at <strong>v0.1.0</strong> — the library core is complete and tested, but the package is not yet published and the network-facing edges (Firecrawl, swoosh) are not yet covered by automated tests. The API below is real and current.</div>
+
+    <!-- QUICKSTART -->
+    <h2 id="quickstart">Quickstart</h2>
+    <p>Define what you want as a Zod schema, then call <code class="inline">pluck</code>. The result is a discriminated union — check <code class="inline">res.ok</code> before reading data.</p>
+    <div class="code"><div class="code-bar"><span class="fname">quickstart.ts</span><button class="copy-btn" data-copy="import { createPluck, callbackRouter } from 'pluck'">Copy</button></div><pre><span class="kw">import</span> { createPluck, callbackRouter } <span class="kw">from</span> <span class="st">'pluck'</span>
+<span class="kw">import</span> { z } <span class="kw">from</span> <span class="st">'zod'</span>
+
+<span class="kw">const</span> Article = z.<span class="fn">object</span>({
+  headline: z.<span class="fn">string</span>(),
+  author:   z.<span class="fn">string</span>().<span class="fn">nullable</span>(),
+  words:    z.<span class="fn">number</span>(),
+})
+
+<span class="kw">const</span> client = <span class="fn">createPluck</span>({
+  router: <span class="fn">callbackRouter</span>(<span class="kw">async</span> (req) => callYourLLM(req)),
+})
+
+<span class="kw">const</span> res = <span class="kw">await</span> client.<span class="fn">pluck</span>(<span class="st">'https://example.com/post'</span>, Article)
+
+<span class="kw">if</span> (res.ok) {
+  console.<span class="fn">log</span>(res.data.headline)        <span class="cm">// string</span>
+  console.<span class="fn">log</span>(res.source)               <span class="cm">// 'jsonld' | 'llm'</span>
+  console.<span class="fn">log</span>(res.provenance.verifiedRatio) <span class="cm">// 0..1</span>
+} <span class="kw">else</span> {
+  console.<span class="fn">warn</span>(res.reason)              <span class="cm">// why it failed</span>
+}</pre></div>
+
+    <!-- CONCEPTS -->
+    <h2 id="concepts">The pipeline</h2>
+    <p>A single <code class="inline">pluck</code> call runs up to six stages. The model is only touched when it has to be.</p>
+    <ul>
+      <li><strong>Fetch</strong> — the configured <code class="inline">Fetcher</code> retrieves the page (plain HTTP by default).</li>
+      <li><strong>Cache lookup</strong> — keyed on content hash + schema hash. A hit returns immediately.</li>
+      <li><strong>JSON-LD fast path</strong> — if the page publishes structured data that satisfies your schema (and clears verification), pluck uses it and skips the model. <code class="inline">source: 'jsonld'</code>.</li>
+      <li><strong>Reduce + extract</strong> — otherwise the HTML is reduced to clean markdown and handed to the <code class="inline">Router</code>, which fills the schema. <code class="inline">source: 'llm'</code>.</li>
+      <li><strong>Verify</strong> — every leaf field is traced back to the source content and scored.</li>
+      <li><strong>Cache write</strong> — successful results are persisted for next time.</li>
+    </ul>
+
+    <h2 id="result">ExtractResult</h2>
+    <p>Every public method resolves to an <code class="inline">ExtractResult&lt;T&gt;</code>. It never throws — even network errors and verification failures come back as <code class="inline">{ ok: false }</code>.</p>
+    <div class="code"><div class="code-bar"><span class="fname">type</span></div><pre><span class="kw">type</span> <span class="ty">ExtractResult</span>&lt;T&gt; =
+  | { ok: <span class="ty">true</span>;  data: T; provenance: <span class="ty">Provenance</span>; cached: <span class="ty">boolean</span>; source: <span class="ty">ExtractSource</span> }
+  | { ok: <span class="ty">false</span>; reason: <span class="ty">string</span>; partial?: <span class="ty">Partial</span>&lt;T&gt; }</pre></div>
+    <p>Because it's a discriminated union, TypeScript narrows <code class="inline">res.data</code> to <code class="inline">T</code> the moment you check <code class="inline">res.ok</code>. There is no untyped escape hatch.</p>
+
+    <h2 id="verify">Verification</h2>
+    <p>Type-safe is not the same as correct — a model can return a perfectly-typed but invented value. pluck treats verification as a separate job: it walks every leaf field in the result, looks for the value in the page's own text, and records a <code class="inline">FieldProvenance</code> (found, source span, confidence) per field. The aggregate is <code class="inline">provenance.verifiedRatio</code>.</p>
+    <p>If verification is on (the default) and the ratio falls below <code class="inline">minRatio</code> (default <code class="inline">0.5</code>), the call returns <code class="inline">{ ok: false }</code> with the unverified data attached as <code class="inline">partial</code>. This applies to the JSON-LD path too — structured data can drift or lie, so it must clear the same bar.</p>
+    <div class="code"><div class="code-bar"><span class="fname">verify.ts</span></div><pre><span class="cm">// tighten the bar, or turn it off entirely</span>
+<span class="fn">createPluck</span>({ verify: { minRatio: <span class="ty">0.8</span> } })
+<span class="fn">createPluck</span>({ verify: <span class="ty">false</span> })   <span class="cm">// trust the model / json-ld outright</span></pre></div>
+
+    <h2 id="fastpath">JSON-LD fast path</h2>
+    <p>Most recipe, product, and article pages embed <code class="inline">schema.org</code> data in a <code class="inline">&lt;script type="application/ld+json"&gt;</code> block (pluck also reads <code class="inline">__NEXT_DATA__</code> and OpenGraph as fallbacks). When that data satisfies your schema, pluck returns it with <strong>no model call at all</strong> — faster, free, and impossible to hallucinate. You can disable it with <code class="inline">jsonLdFirst: false</code>.</p>
+
+    <h2 id="caching">Caching</h2>
+    <p>Pass a <code class="inline">Cache</code> and pluck keys each extraction on <code class="inline">hash(content) + hash(schema)</code>. An unchanged page with the same schema is a guaranteed hit — you don't pay the model twice. The bundled <code class="inline">MemoryCache</code> is per-process; the <code class="inline">Cache</code> interface is the seam where a shared Redis/Postgres store drops in when you graduate the library into a service.</p>
+
+    <!-- API -->
+    <h2 id="api">createPluck</h2>
+    <div class="sig"><span class="fn">createPluck</span>(config?: <span class="ty">PluckConfig</span>): <span class="ty">PluckClient</span></div>
+    <p>Creates a client bound to a configuration. With no arguments you get a zero-config client (plain fetcher, no router, no cache) — enough for the JSON-LD fast path, but LLM extraction needs a router.</p>
+    <div class="code"><div class="code-bar"><span class="fname">client.ts</span></div><pre><span class="kw">const</span> client = <span class="fn">createPluck</span>({
+  fetcher: <span class="fn">firecrawlFetcher</span>(),       <span class="cm">// default: plainFetcher</span>
+  router:  <span class="fn">swooshRouter</span>(swoosh),       <span class="cm">// required for LLM extraction</span>
+  cache:   <span class="kw">new</span> <span class="fn">MemoryCache</span>(),          <span class="cm">// default: none</span>
+  verify:  { minRatio: <span class="ty">0.6</span> },        <span class="cm">// default: true (0.5)</span>
+  jsonLdFirst: <span class="ty">true</span>,                 <span class="cm">// default: true</span>
+})</pre></div>
+
+    <h2 id="pluck">pluck &amp; define</h2>
+    <div class="sig"><span class="fn">client.pluck</span>&lt;T&gt;(url: <span class="ty">string</span>, schema: <span class="ty">ZodType</span>&lt;T&gt;, opts?: <span class="ty">ExtractOptions</span>): <span class="ty">Promise</span>&lt;<span class="ty">ExtractResult</span>&lt;T&gt;&gt;</div>
+    <p>Extract from a URL against a schema. <code class="inline">opts.render</code> forces a JS render (if the fetcher supports it); <code class="inline">opts.instruction</code> adds a hint passed to the router.</p>
+    <div class="sig"><span class="fn">client.define</span>&lt;T&gt;(schema: <span class="ty">ZodType</span>&lt;T&gt;, opts?: <span class="ty">ExtractOptions</span>): { extract(url: <span class="ty">string</span>): <span class="ty">Promise</span>&lt;<span class="ty">ExtractResult</span>&lt;T&gt;&gt; }</div>
+    <p>Bind a schema up front and reuse it — a small "typed API for one shape" you can pass around.</p>
+    <div class="code"><div class="code-bar"><span class="fname">define.ts</span></div><pre><span class="kw">const</span> recipes = client.<span class="fn">define</span>(Recipe)
+<span class="kw">const</span> a = <span class="kw">await</span> recipes.<span class="fn">extract</span>(url1)
+<span class="kw">const</span> b = <span class="kw">await</span> recipes.<span class="fn">extract</span>(url2)</pre></div>
+
+    <h2 id="default">Default client</h2>
+    <p>For the quick path, pluck exports a zero-config client's <code class="inline">pluck</code> method directly, so you can call <code class="inline">pluck(url, schema)</code> without constructing a client. No router is wired, so this only resolves the JSON-LD fast path; configure your own client for LLM extraction.</p>
+    <div class="code"><div class="code-bar"><span class="fname">default.ts</span></div><pre><span class="kw">import</span> { pluck } <span class="kw">from</span> <span class="st">'pluck'</span>
+
+<span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">pluck</span>(url, Recipe)   <span class="cm">// json-ld path only</span></pre></div>
+
+    <h2 id="config">PluckConfig</h2>
+    <table class="ref">
+      <thead><tr><th>Field</th><th>Type</th><th>Default &amp; meaning</th></tr></thead>
+      <tbody>
+        <tr><td>fetcher</td><td><span class="ty">Fetcher</span></td><td><code class="inline">plainFetcher</code> — how pages are retrieved.</td></tr>
+        <tr><td>router</td><td><span class="ty">Router</span></td><td>none — required for the LLM path; the model call.</td></tr>
+        <tr><td>cache</td><td><span class="ty">Cache</span></td><td>none — pass one to dedupe by content+schema.</td></tr>
+        <tr><td>verify</td><td><span class="ty">boolean | { minRatio }</span></td><td><code class="inline">true</code> (0.5) — source-trace gate.</td></tr>
+        <tr><td>jsonLdFirst</td><td><span class="ty">boolean</span></td><td><code class="inline">true</code> — try structured data before the model.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- SEAMS -->
+    <h2 id="fetchers">Fetchers</h2>
+    <p>A <code class="inline">Fetcher</code> turns a URL into HTML. pluck ships three.</p>
+    <h3>plainFetcher</h3>
+    <p>Global <code class="inline">fetch</code>, honoring <code class="inline">timeoutMs</code>. The default — fine for static and server-rendered pages.</p>
+    <h3>firecrawlFetcher({ baseUrl?, apiKey? })</h3>
+    <p>Talks to a Firecrawl-compatible <code class="inline">/v1/scrape</code> endpoint for JS rendering and anti-bot handling. Points at a <strong>self-hosted</strong> instance — <code class="inline">baseUrl</code> is required (falls back to <code class="inline">PLUCK_FIRECRAWL_URL</code>; key from <code class="inline">PLUCK_FIRECRAWL_KEY</code>).</p>
+    <h3>tieredFetcher({ plain?, rendered?, needsRender? })</h3>
+    <p>Tries the cheap fetcher first and escalates to the rendered one only when needed (low HTML length, or an explicit <code class="inline">render</code> request). Cost control by default.</p>
+    <div class="code"><div class="code-bar"><span class="fname">fetchers.ts</span></div><pre><span class="kw">import</span> { tieredFetcher, plainFetcher, firecrawlFetcher } <span class="kw">from</span> <span class="st">'pluck'</span>
+
+<span class="kw">const</span> fetcher = <span class="fn">tieredFetcher</span>({
+  plain:    plainFetcher,
+  rendered: <span class="fn">firecrawlFetcher</span>({ baseUrl: process.env.PLUCK_FIRECRAWL_URL }),
+})</pre></div>
+
+    <h2 id="routers">Routers</h2>
+    <p>A <code class="inline">Router</code> owns the model call. pluck declares what it needs — structured output for a JSON schema — and the router decides which model answers. pluck never names a model itself.</p>
+    <h3>callbackRouter(fn)</h3>
+    <p>Wraps any async function <code class="inline">(req: RouterRequest) =&gt; Promise&lt;unknown&gt;</code>. This is your bring-your-own-LLM hook, and what tests use as a mock.</p>
+    <h3>swooshRouter(instance)</h3>
+    <p>Adapts a <a href="https://github.com/acalejos/swoosh" style="color:var(--vermilion-deep)">swoosh-router</a> instance into pluck's <code class="inline">Router</code>, so model selection, budgets, and fallback live in your policy layer. <code class="inline">swoosh-router</code> is an optional peer dependency — pluck builds and runs without it.</p>
+    <div class="code"><div class="code-bar"><span class="fname">router.ts</span></div><pre><span class="cm">// bring your own model</span>
+<span class="fn">callbackRouter</span>(<span class="kw">async</span> ({ content, jsonSchema, instruction }) => {
+  <span class="kw">return</span> <span class="kw">await</span> myLLM.<span class="fn">structured</span>({ content, schema: jsonSchema })
+})
+
+<span class="cm">// or delegate model policy to swoosh</span>
+<span class="kw">const</span> router = <span class="kw">await</span> <span class="fn">swooshRouter</span>(swoosh)</pre></div>
+    <div class="callout"><span class="lbl">The seam</span>pluck owns crawl, reduce, verify, and cache. swoosh owns which model, under what policy. pluck asks for "a model that does structured output"; swoosh picks one and prices it. Neither reaches into the other's job.</div>
+
+    <h2 id="cache">Cache</h2>
+    <p>Implement <code class="inline">get(key)</code> / <code class="inline">set(key, value)</code> and pluck will use it. The bundled <code class="inline">MemoryCache</code> is a Map; <code class="inline">hashContent</code>, <code class="inline">hashSchema</code>, and <code class="inline">cacheKey</code> are exported if you build your own store.</p>
+
+    <!-- TYPES -->
+    <h2 id="types">Types reference</h2>
+    <table class="ref">
+      <thead><tr><th>Export</th><th>Shape</th></tr></thead>
+      <tbody>
+        <tr><td>Fetcher</td><td><span class="ty">fetch(url, opts?) → Promise&lt;FetchResult&gt;</span></td></tr>
+        <tr><td>FetchResult</td><td><span class="ty">{ url, finalUrl?, status, html, markdown? }</span></td></tr>
+        <tr><td>Router</td><td><span class="ty">extract(req: RouterRequest) → Promise&lt;unknown&gt;</span></td></tr>
+        <tr><td>RouterRequest</td><td><span class="ty">{ content, jsonSchema, instruction?, requiresFeatures? }</span></td></tr>
+        <tr><td>Cache</td><td><span class="ty">get(key) / set(key, value)</span></td></tr>
+        <tr><td>Provenance</td><td><span class="ty">{ fields: Record&lt;string, FieldProvenance&gt;, verifiedRatio }</span></td></tr>
+        <tr><td>FieldProvenance</td><td><span class="ty">{ value, found, sourceSpan?, confidence }</span></td></tr>
+        <tr><td>ExtractSource</td><td><span class="ty">'jsonld' | 'llm'</span></td></tr>
+        <tr><td>ExtractOptions</td><td><span class="ty">{ instruction?, render? }</span></td></tr>
+      </tbody>
+    </table>
+    <p>Lower-level building blocks are exported too, for advanced use: <code class="inline">extractFromStructuredData</code>, <code class="inline">htmlToMarkdown</code>, <code class="inline">cleanHtml</code>, <code class="inline">extractWithRouter</code>, and <code class="inline">verify</code>.</p>
+
+    <h2 id="status">Status</h2>
+    <p><strong>v0.1.0 — scaffold.</strong> The library core is complete: <code class="inline">tsc</code> is clean and the offline pipeline (JSON-LD, reduce, verify, cache, and the orchestrator) is covered by tests. Not yet covered: the live Firecrawl fetcher and the swoosh adapter, both of which need external resources. The package is unscoped (<code class="inline">pluck</code>) pending a final org/scope decision, and is not yet published to npm.</p>
+
+    <p style="margin-top:2.5rem;font-family:var(--mono);font-size:0.8rem;color:var(--ink-faint)">← <a href="index.html" style="color:var(--vermilion-deep)">back to home</a></p>
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
