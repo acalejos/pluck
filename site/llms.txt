@@ -1,0 +1,18 @@
+# pluck
+
+> Turn any website into a type-safe, verified API. You bring a Zod schema; pluck fetches the page, fills the schema, traces every field back to the source it came from, and caches the result. pluck owns the crawl, verify, and cache — the model call is pluggable.
+
+pluck is an ESM, TypeScript-first library. A single `pluck(url, schema)` call runs a six-stage pipeline — fetch → JSON-LD fast path → reduce → router extract → verify → cache — and resolves to a discriminated `ExtractResult<T>` (never an untyped blob, never a thrown error). Pages that publish `schema.org` JSON-LD skip the model entirely. The model call is delegated to a pluggable `Router`; [swoosh-router](https://github.com/acalejos/swoosh) is the recommended policy layer.
+
+## Docs
+- [Landing](https://acalejos.github.io/pluck/index.md): What pluck is, the six-stage pipeline, and why (type-safe by contract, verified not guessed, cheap by default, swappable seams).
+- [Documentation](https://acalejos.github.io/pluck/docs.md): Install, quickstart, concepts (pipeline, ExtractResult, verification, JSON-LD fast path, caching), the full API (createPluck, pluck & define, default client, PluckConfig), the Fetcher/Router/Cache seams, and the types reference.
+
+## Examples
+- [01-jsonld-recipe](https://github.com/acalejos/pluck/blob/main/examples/01-jsonld-recipe.ts): The zero-LLM JSON-LD fast path — extract a typed recipe from schema.org data with no model call.
+- [02-mock-extract](https://github.com/acalejos/pluck/blob/main/examples/02-mock-extract.ts): The LLM path with a mock callbackRouter, showing the typed result and per-field provenance.
+- [03-swoosh](https://github.com/acalejos/pluck/blob/main/examples/03-swoosh.ts): Real-world wiring — a swoosh-router for model policy plus a self-hosted Firecrawl fetcher.
+
+## Optional
+- [llms-full.txt](https://acalejos.github.io/pluck/llms-full.txt): the entire documentation — landing and full docs — in a single file.
+- [GitHub repository](https://github.com/acalejos/pluck)

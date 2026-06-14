@@ -246,3 +246,13 @@ table.ref td .ty { color: var(--vermilion-deep); font-family: var(--mono); }
 
 /* hero brand moment — larger, static */
 .hero-mark { display: block; width: clamp(92px, 11vw, 122px); height: auto; color: var(--ink); margin-bottom: 1.3rem; }
+
+/* ---------- agent affordances: copy-as-markdown ---------- */
+.md-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.65rem; margin-top: 1.3rem; font-family: var(--mono); font-size: 0.76rem; }
+.md-btn { display: inline-flex; align-items: center; gap: 0.45rem; font-family: var(--mono); font-size: 0.76rem; letter-spacing: 0.01em; color: var(--ink); background: var(--paper-2); border: 1px solid var(--rule); border-radius: 2px; padding: 0.44rem 0.72rem; cursor: pointer; transition: all 0.15s; }
+.md-btn:hover { border-color: var(--ink); transform: translateY(-1px); }
+.md-btn.done { color: var(--olive); border-color: var(--olive); }
+.md-btn svg { width: 14px; height: 14px; flex: none; }
+.md-link { color: var(--ink-soft); border-bottom: 1px solid var(--rule); padding-bottom: 1px; transition: all 0.13s; }
+.md-link:hover { color: var(--vermilion-deep); border-bottom-color: var(--vermilion); }
+.md-actions .sep { color: var(--ink-faint); }

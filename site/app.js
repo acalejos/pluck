@@ -19,6 +19,30 @@ document.querySelectorAll('.copy-btn').forEach((btn) => {
   });
 });
 
+// --- "Copy as Markdown" buttons (fetch the page's .md and copy) ---
+document.querySelectorAll('[data-copy-md]').forEach((btn) => {
+  const file = btn.getAttribute('data-copy-md');
+  const label = btn.querySelector('.md-label') || btn;
+  btn.addEventListener('click', async () => {
+    const original = label.textContent;
+    try {
+      const res = await fetch(file, { cache: 'no-store' });
+      const md = await res.text();
+      await navigator.clipboard.writeText(md);
+      label.textContent = 'Copied as Markdown';
+      btn.classList.add('done');
+    } catch {
+      // clipboard/fetch blocked (e.g. insecure context / file://) — open the raw .md instead
+      window.open(file, '_blank');
+      label.textContent = 'Opened .md';
+    }
+    setTimeout(() => {
+      label.textContent = original;
+      btn.classList.remove('done');
+    }, 1600);
+  });
+});
+
 // --- docs TOC scroll-spy (scroll listener, not IntersectionObserver) ---
 const tocLinks = Array.from(document.querySelectorAll('#toc a'));
 if (tocLinks.length) {
