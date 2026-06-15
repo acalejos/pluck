@@ -1,13 +1,21 @@
 # pluck
 
-Turn any website into a type-safe, verified API. Give pluck a URL and a schema, and it fetches the page, extracts structured data, and verifies the result against the source so you can trust what you get back.
+[![CI](https://github.com/acalejos/pluck/actions/workflows/ci.yml/badge.svg)](https://github.com/acalejos/pluck/actions/workflows/ci.yml) · [Docs](https://acalejos.github.io/pluck/docs.html) · [llms.txt](https://acalejos.github.io/pluck/llms.txt) · MIT
 
-## What it does
+Turn any website into a type-safe, verified API. Give pluck a URL and a Zod
+schema; it returns data shaped like that schema and tells you how much of it
+traced back to the page. Nothing is taken on faith — every extracted field is
+checked against the source content before it reaches you.
 
-Turn any website into a type-safe, verified API. You give pluck a URL and a Zod
-schema; it returns data shaped like that schema, and tells you how much of that
-data it could trace back to the page itself. Nothing is taken on faith: every
-extracted field is checked against the source content before it reaches you.
+## Install
+
+```bash
+npm install pluck zod
+```
+
+> **Pre-release (0.1.0).** The library core is complete and tested; the package
+> is not yet published to npm, and the networked edges (Firecrawl, swoosh) are
+> not yet covered by automated tests.
 
 ## Pipeline
 
@@ -134,6 +142,13 @@ plus a self-hosted Firecrawl fetcher).
 
 Run the offline ones with `npx tsx examples/01-jsonld-recipe.ts`.
 
+## Docs
+
+- [Landing](https://acalejos.github.io/pluck/) · [Documentation](https://acalejos.github.io/pluck/docs.html)
+- Agent-readable: [llms.txt](https://acalejos.github.io/pluck/llms.txt) · [llms-full.txt](https://acalejos.github.io/pluck/llms-full.txt) (every page also has a `.md` twin, e.g. [docs.md](https://acalejos.github.io/pluck/docs.md))
+
+The site's Markdown/llms files are generated from the HTML by `npm run docs`.
+
 ## Status
 
-0.1.0 scaffold. The API shape is settling; expect changes.
+0.1.0 scaffold. The API shape is settling; expect changes. Not yet published to npm.
