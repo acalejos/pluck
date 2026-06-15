@@ -2,7 +2,7 @@
 
 > Turn any website into a type-safe, verified API. Source: https://acalejos.github.io/pluck/ · Repo: https://github.com/acalejos/pluck
 
-Hand pluck a URL and a schema. Get back a typed object where every field has been traced to the page it came from. No selectors, no scraping glue, no silent `any`.
+Hand pluck a URL and a schema. Get back a typed object where every field has been traced to the page it came from. No selectors. No scraping glue. No silent `any`.
 
 ```ts
 import { createPluck } from 'pluck'
@@ -15,12 +15,13 @@ const Recipe = z.object({
 })
 
 const client = createPluck({ router })
+
 const res = await client.pluck(url, Recipe)
-//    ^? ExtractResult<Recipe>
+//        ^? ExtractResult<Recipe>
 
 if (res.ok) {
   res.data.minutes   // number — verified ✓
-  res.source         // 'jsonld' | 'llm'
+  res.source          // 'jsonld' | 'llm'
 }
 ```
 
@@ -28,19 +29,19 @@ if (res.ok) {
 
 `fetch → JSON-LD fast path → reduce → router extract → verify → cache`
 
-- **Fetch** — plain HTTP, or your self-hosted Firecrawl for JS-heavy pages.
-- **JSON-LD (fast path)** — reads schema.org & embedded data. Zero LLM, zero cost. Most recipe, product, and article pages take this path.
-- **Reduce** — strips the chrome; clean markdown, not raw HTML.
-- **Extract** — a router fills your schema. pluck never names the model.
-- **Verify** — traces every field back to the source and sets a ratio.
-- **Cache** — keyed on content + schema. Unchanged page, no re-work.
+- **Fetch** — Plain HTTP, or your self-hosted Firecrawl for JS-heavy pages.
+- **JSON-LD (fast path)** — Reads schema.org & embedded data. Zero LLM, zero cost.
+- **Reduce** — Strips the chrome. Clean markdown, not raw HTML.
+- **Extract** — A router fills your schema. pluck never names the model.
+- **Verify** — Traces every field back to the source. Sets a ratio.
+- **Cache** — Keyed on content + schema. Unchanged page, no re-work.
 
 ## Why
 
-- **Type-safe by contract.** The schema is yours and decoupled from the page's markup. Every call resolves to a discriminated `ExtractResult<T>` — never an untyped blob.
-- **Verified, not guessed.** Every extracted field is traced to a span in the page's own text and scored. Fall below the threshold and you get `{ ok: false }` with the partial, not a confident fabrication.
-- **Cheap on purpose.** JSON-LD fast path spends no tokens; LLM results are cached on a content + schema hash.
-- **Swap any part.** `Fetcher`, `Router`, and `Cache` are plain interfaces. swoosh ([swoosh-router](https://github.com/acalejos/swoosh)) owns model policy; pluck owns crawl, verify, and cache.
+- **Type-safe by contract, not by hope.** The schema is **yours**, and it's decoupled from the page's markup. A site can re-skin its entire layout — your `Recipe` type doesn't move, because pluck reads meaning, not CSS selectors.
+- **Verified, not guessed.** An LLM will happily invent a price. pluck won't ship one. Every extracted field is traced back to a span in the page's own text and scored — the result carries a `verifiedRatio`.
+- **Cheap on purpose.** The model call is the expensive part, so pluck avoids it whenever it can. Pages that already publish `schema.org` JSON-LD take the fast path — no tokens spent, no hallucination surface.
+- **Swap any part. Keep the pipeline.** Fetcher, Router, and Cache are plain interfaces. Start on plain `fetch`; graduate to `firecrawlFetcher` against your own crawl stack. Mock the model with `callbackRouter`; wire real policy with `swooshRouter`.
 
 ## More
 

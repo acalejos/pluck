@@ -186,12 +186,13 @@ footer .flinks a:hover { color: var(--vermilion-deep); }
 /* ---------- docs layout ---------- */
 .docs { display: grid; grid-template-columns: 232px 1fr; gap: clamp(1.5rem, 4vw, 3.5rem); max-width: 1240px; margin: 0 auto; padding: 2.5rem var(--gap) 5rem; }
 .side { position: sticky; top: 88px; align-self: start; height: max-content; }
-.side nav { border-left: 1px solid var(--rule); }
-.side .grp { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-faint); padding: 1.2rem 0 0.4rem 1rem; }
+.side .grp { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-faint); padding: 1.2rem 0 0.4rem 0.95rem; }
 .side .grp:first-child { padding-top: 0; }
-.side a { display: block; font-family: var(--mono); font-size: 0.8rem; color: var(--ink-soft); padding: 0.3rem 0 0.3rem 1rem; margin-left: -1px; border-left: 2px solid transparent; transition: all 0.13s; }
-.side a:hover { color: var(--ink); border-left-color: var(--rule); }
-.side a.active { color: var(--vermilion-deep); border-left-color: var(--vermilion); }
+.side a { display: block; position: relative; font-family: var(--mono); font-size: 0.8rem; color: var(--ink-soft); padding: 0.3rem 0 0.3rem 0.95rem; transition: color 0.13s; }
+.side a::before { content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 5px; height: 5px; border-radius: 50%; background: var(--vermilion); opacity: 0; transition: opacity 0.13s; }
+.side a:hover { color: var(--ink); }
+.side a.active { color: var(--vermilion-deep); font-weight: 600; }
+.side a.active::before { opacity: 1; }
 
 .doc-main { min-width: 0; max-width: 760px; }
 .doc-main h1 { font-size: clamp(2.4rem, 5vw, 3.4rem); }
@@ -226,10 +227,10 @@ table.ref td .ty { color: var(--vermilion-deep); font-family: var(--mono); }
   .pipe-step { border-right: 1px solid var(--rule); border-bottom: none; min-width: 45%; }
   .docs { grid-template-columns: 1fr; }
   .side { position: static; border: 1px solid var(--rule); border-radius: 4px; padding: 0.5rem 0.8rem 1rem; margin-bottom: 1.5rem; }
-  .side nav { border-left: none; display: flex; flex-wrap: wrap; gap: 0.2rem 1rem; }
+  .side nav { display: flex; flex-wrap: wrap; gap: 0.2rem 1rem; }
   .side .grp { width: 100%; padding-left: 0; }
-  .side a { border-left: none; padding-left: 0; }
-  .side a.active { border-left: none; }
+  .side a { padding-left: 0; }
+  .side a::before { display: none; }
   .nav .hide-sm { display: none; }
 }
 @media (max-width: 560px) {

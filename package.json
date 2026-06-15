@@ -21,7 +21,8 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "docs": "node scripts/gen-docs.mjs"
   },
   "dependencies": {
     "zod": "^3.23",
@@ -34,7 +35,8 @@
     "vitest": "^2.1",
     "tsx": "^4.19",
     "@types/node": "^22",
-    "@types/turndown": "^5"
+    "@types/turndown": "^5",
+    "turndown-plugin-gfm": "^1.0.2"
   },
   "peerDependencies": {
     "swoosh-router": "*"

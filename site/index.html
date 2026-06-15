@@ -108,7 +108,7 @@
     </div>
     <div class="body">
       <p>The schema is <strong>yours</strong>, and it's decoupled from the page's markup. A site can re-skin its entire layout — your <code class="inline">Recipe</code> type doesn't move, because pluck reads meaning, not CSS selectors.</p>
-      <p>Every call resolves to a discriminated <code class="inline">ExtractResult&lt;T&gt;</code>. Success is typed data; failure is a reason and an optional partial. There is no path where you get an untyped blob and a prayer.</p>
+      <p>Every call resolves to a discriminated <code class="inline">ExtractResult&lt;T&gt;</code>. Success is typed data; failure is a reason and an optional partial — never an untyped blob to guess at.</p>
       <span class="tag">ExtractResult&lt;T&gt; · never any</span>
     </div>
   </div>
